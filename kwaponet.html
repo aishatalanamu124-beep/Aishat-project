@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KWAPOMAP</title>
+  <style>
+   body {
+  font-family: Arial, sans-serif;
+  background: #0F0F0F;
+  color: #F8F8F8;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Title */
+h1 {
+  color: #5DD62C;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+/* Input */
+input {
+  padding: 14px;
+  width: 85%;
+  border-radius: 12px;
+  border: 1px solid #337418;
+  background: #202020;
+  color: #F8F8F8;
+  outline: none;
+  font-size: 16px;
+  transition: 0.2s;
+}
+
+input:focus {
+  border: 1px solid #5DD62C;
+  box-shadow: 0 0 10px rgba(93, 214, 44, 0.4);
+}
+
+/* Button */
+button {
+  padding: 14px;
+  width: 50%;
+  margin-top: 10px;
+  border: none;
+  border-radius: 12px;
+  background: #5DD62C;
+  color: #0F0F0F;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #337418;
+  color: #F8F8F8;
+}
+
+/* Result box */
+#result {
+  margin-top: 25px;
+}
+
+/* Link */
+a {
+  display: inline-block;
+  margin-top: 10px;
+  color: #5DD62C;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #F8F8F8;
+}
+  </style>
+</head>
+
+<body>
+
+<h1>KwapoMap</h1>
+
+<input id="search" placeholder="Search location..." />
+<div style="margin-top:10px; font-size:14px; color:#aaa;">
+Try: lr 18, library, hostel, clinic, admissions
+</div>
+<div id="suggestions"></div>
+<button onclick="searchLocation()">Search</button>
+
+<div id="result"></div>
+
+<script>
+const locations = [
+  {
+    name: "Girls Hostel (TETFund)",
+    keywords: ["girls hostel", "hostel", "tetfund"],
+    maps_link: "https://maps.app.goo.gl/1jierm6u8AyKVUXN7",
+    description: "Girls hostel under TETFund project."
+  },
+  {
+    name: "Academy Planning Unit",
+    keywords: ["academy planning", "planning unit"],
+    maps_link: "https://maps.app.goo.gl/GmXGZwPrVDP7og417",
+    description: "Handles academic and institutional planning."
+  },
+  {
+    name: "Mass Communication ND 1",
+    keywords: ["mass comm", "mass communication", "nd1"],
+    maps_link: "https://maps.app.goo.gl/yTQ1gZQ6mMLeoLpQA",
+    description: "ND1 Mass Communication lecture area."
+  },
+  {
+    name: "LR 27 (Ibass)",
+    keywords: ["lr 27", "27", "ibass"],
+    maps_link: "https://maps.app.goo.gl/TNRtt4oMoBfPHTAq9",
+    description: "Lecture Room 27 in Ibass block."
+  },
+  {
+    name: "IFMS Unit (Village)",
+    keywords: ["ifms", "village", "ifms village"],
+    maps_link: "https://maps.app.goo.gl/224e7kBm5qY2f3zD8",
+    description: "Known as Village, hosts ND1 IFMS classes."
+  },
+  {
+    name: "Tourism Cafeteria",
+    keywords: ["tourism", "cafeteria", "food"],
+    maps_link: "https://maps.app.goo.gl/NErsfo3MKiJEEWqQ7",
+    description: "Popular student food spot."
+  },
+  {
+    name: "SIWES Unit",
+    keywords: ["siwes", "siwes unit"],
+    maps_link: "https://maps.app.goo.gl/7RkQEBdMWWdEWro18",
+    description: "Handles industrial training matters."
+  },
+  {
+    name: "School Clinic",
+    keywords: ["clinic", "school clinic", "health"],
+    maps_link: "https://maps.app.goo.gl/uCedhpGXkbcJZWFZA",
+    description: "Campus medical center."
+  },
+  {
+    name: "Drug Test Building",
+    keywords: ["drug test"],
+    maps_link: "https://maps.app.goo.gl/SPmkt7pFtVgpnfeH9",
+    description: "Student drug screening center."
+  },
+  {
+    name: "Mass Communication Department",
+    keywords: ["mass comm dept", "department of mass communication"],
+    maps_link: "https://maps.app.goo.gl/NCPrcwJKQ71JMNR76",
+    description: "Main department office."
+  },
+  {
+    name: "Old ETF (HND Accounting)",
+    keywords: ["old etf", "accounting hnd", "hnd"],
+    maps_link: "https://maps.app.goo.gl/1tmag1ddW5b8Wrh78",
+    description: "Accounting HND lectures beside Admissions Office."
+  },
+  {
+    name: "Admissions Office",
+    keywords: ["admission", "admissions"],
+    maps_link: "https://maps.app.goo.gl/KJTaDnJkhrnT6qx16",
+    description: "Main admissions office in front of NOC."
+  },
+  {
+    name: "Auditorium 1",
+    keywords: ["auditorium", "hall"],
+    maps_link: "https://maps.app.goo.gl/h7xgYnsSYMRBxNcYA",
+    description: "Event hall behind admissions office."
+  },
+  {
+    name: "Ibass Lecture Block",
+    keywords: ["ibass", "lecture rooms"],
+    maps_link: "https://maps.app.goo.gl/1eie2gYJFpe5cMkHA",
+    description: "LR 28–40 lecture rooms."
+  },
+  {
+    name: "Conference Hall",
+    keywords: ["conference", "hall"],
+    maps_link: "https://maps.app.goo.gl/TyQhDRtKcVM9vmZXA",
+    description: "Used for meetings and seminars."
+  },
+  {
+    name: "LR 43",
+    keywords: ["lr 43", "43"],
+    maps_link: "https://maps.app.goo.gl/Hq4vWaeBWFpP1kgA9",
+    description: "Lecture Room 43."
+  },
+  {
+    name: "LR 42",
+    keywords: ["lr 42", "42"],
+    maps_link: "https://maps.app.goo.gl/3dNEZeUbmKffCPwx9",
+    description: "Lecture Room 42."
+  },
+  {
+    name: "CCE Building",
+    keywords: ["cce"],
+    maps_link: "https://maps.app.goo.gl/45fo6EDGWW263A6P7",
+    description: "Centre for Continuing Education."
+  },
+  {
+    name: "IFMS Bursary Unit",
+    keywords: ["bursary", "ifms bursary"],
+    maps_link: "https://maps.app.goo.gl/d55LxhLWcgfBU84W6",
+    description: "Handles IFMS financial matters."
+  },
+  {
+    name: "Accounting / Business Block",
+    keywords: ["accounting", "business", "finance", "marketing"],
+    maps_link: "https://www.google.com/maps?q=8.5594915,4.6370361",
+    description: "Business departments."
+  },
+  {
+    name: "Lecture Rooms 1–5",
+    keywords: ["lr 1", "lr 2", "lr 3", "lr 4", "lr 5"],
+    maps_link: "https://maps.app.goo.gl/nv56JwfzXo16PiVr9",
+    description: "First lecture rooms block."
+  },
+  {
+    name: "Lecture Rooms 6–10",
+    keywords: ["lr 6", "lr 7", "lr 8", "lr 9", "lr 10"],
+    maps_link: "https://maps.app.goo.gl/sAqxTUgLVg1C89ec8",
+    description: "Second lecture rooms block."
+  },
+  {
+    name: "Lecture Room 12",
+    keywords: ["lr 12", "12"],
+    maps_link: "https://maps.app.goo.gl/3C2X5afx9cxSxJ4b8",
+    description: "Lecture Room 12."
+  },
+  {
+    name: "Lecture Room 13",
+    keywords: ["lr 13", "13"],
+    maps_link: "https://maps.app.goo.gl/qqFateJgbT3Z7SnE6",
+    description: "Lecture Room 13."
+  },
+  {
+    name: "Lecture Room 18",
+    keywords: ["lr 18", "18"],
+    maps_link: "https://maps.app.goo.gl/duh18u9TR5t9pP1eA",
+    description: "Lecture Room 18."
+  },
+  {
+    name: "Main Library",
+    keywords: ["library", "lib"],
+    maps_link: "https://maps.app.goo.gl/wCQguM9bZ9zYmjFb7",
+    description: "Main campus library."
+  },
+  {
+    name: "Nutrition & Dietetics",
+    keywords: ["nutrition", "dietetics"],
+    maps_link: "https://maps.app.goo.gl/yCv5Abv64Ne5ntoe9",
+    description: "Beside NOC building."
+  },
+  {
+    name: "DSS Office",
+    keywords: ["dss", "clearance"],
+    maps_link: "https://maps.app.goo.gl/4VUsyZAuBBQvX7vm6",
+    description: "Clearance and hostel forms office."
+  },
+  {
+    name: "IoT Building 2",
+    keywords: ["iot", "iot 2"],
+    maps_link: "https://maps.app.goo.gl/DJp7PDFoqNgXe16N9",
+    description: "IoT Building 2 for HND students."
+  }
+];
+
+function searchLocation() {
+  const input = document.getElementById("search").value.toLowerCase().trim();
+  const result = document.getElementById("result");
+
+  if (!input) {
+    result.innerHTML = "Type something.";
+    return;
+  }
+
+  const results = locations
+    .map(loc => {
+      let score = 0;
+
+      loc.keywords.forEach(k => {
+        if (input === k) score += 100;
+        else if (input.includes(k)) score += 50;
+        else if (k.includes(input)) score += 30;
+      });
+
+      return { loc, score };
+    })
+    .filter(r => r.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+
+  if (results.length === 0) {
+    result.innerHTML = "No matches found.";
+    return;
+  }
+
+  result.innerHTML = results.map(r => `
+    <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+      <h3>${r.loc.name}</h3>
+      <p>${r.loc.description}</p>
+
+      <a href="${r.loc.maps_link}" target="_blank">
+        📍 Open in Google Maps
+      </a>
+    </div>
+  `).join("");
+}
+</script>
+
+</body>
+</html>
